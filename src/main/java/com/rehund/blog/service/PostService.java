@@ -21,7 +21,7 @@ public class PostService {
         return postRepository.findAll();
     }
     public Post getPostBySlug(String slug){
-        return postRepository.findFirstBySlug(slug).orElse(null);
+        return postRepository.findFirstBySlugAndIsDeleted(slug, false).orElse(null);
     }
 
     public Post createPost(Post post){
@@ -30,7 +30,7 @@ public class PostService {
     }
 
     public Post updatePostBySlug(String slug, Post post){
-        Post foundPost =  postRepository.findFirstBySlug(slug).orElse(null);
+        Post foundPost =  postRepository.findFirstBySlugAndIsDeleted(slug, false).orElse(null);
         if(foundPost == null) {
             return null;
         }
@@ -38,13 +38,14 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    public void deletePostById(Integer id){
+    public boolean deletePostById(Integer id){
         Post post =  postRepository.findById(id).orElse(null);
         if(post == null){
-            System.out.println("Post not found");
+            return false;
         }
-        postRepository.deleteById(id);
-        System.out.println("Delete post success");
+        post.setDeleted(true);
+        postRepository.save(post);
+        return true;
     }
 
     public Post publishPostWithId(Integer id){
@@ -56,6 +57,5 @@ public class PostService {
         post.setPublishedAt(Instant.now().getEpochSecond());
         return postRepository.save(post);
     }
-
 
 }
