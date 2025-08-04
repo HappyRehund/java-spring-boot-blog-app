@@ -5,8 +5,6 @@ import com.rehund.blog.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 public class PostController {
 
@@ -18,7 +16,7 @@ public class PostController {
     }
 
     @GetMapping("/")
-    public List<Post> getPosts(){
+    public Iterable<Post> getPosts(){
         return postService.getPosts();
     }
 
