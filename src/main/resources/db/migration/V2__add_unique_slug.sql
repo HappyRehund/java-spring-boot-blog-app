@@ -1,0 +1,1 @@
+ALTER TABLE post ADD UNIQUE post_slog_unique (slug);
