@@ -15,6 +15,7 @@ public class Post {
     @Column(unique = true)
     private String slug;
     private boolean isPublished;
+//  is Deleted itu merupakan implementasi soft delete
     private boolean isDeleted;
     private Long createdAt;
     private Long publishedAt;

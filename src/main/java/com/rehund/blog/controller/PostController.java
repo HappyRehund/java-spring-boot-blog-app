@@ -6,16 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/api/posts")
 public class PostController {
 
     private final PostService postService;
 
-    @Autowired // <-- Spring otomatis inject PostService ke sini
+    @Autowired
     public PostController(PostService postService) {
         this.postService = postService;
     }
 
-    @GetMapping("/")
+    @GetMapping
     public Iterable<Post> getPosts(){
         return postService.getPosts();
     }
@@ -25,7 +26,7 @@ public class PostController {
         return postService.getPostBySlug(slug);
     }
 
-    @PostMapping("/")
+    @PostMapping
     public Post createPost(@RequestBody Post post) {
         return postService.createPost(post);
     }
