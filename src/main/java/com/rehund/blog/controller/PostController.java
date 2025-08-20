@@ -1,9 +1,16 @@
 package com.rehund.blog.controller;
 
-import com.rehund.blog.entity.Post;
+import com.rehund.blog.request.post.CreatePostRequest;
+import com.rehund.blog.request.post.GetPostBySlugRequest;
+import com.rehund.blog.request.post.GetPostsRequest;
+import com.rehund.blog.request.post.UpdatePostBySlugRequest;
+import com.rehund.blog.response.post.*;
 import com.rehund.blog.service.PostService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -17,32 +24,40 @@ public class PostController {
     }
 
     @GetMapping
-    public Iterable<Post> getPosts(){
-        return postService.getPosts();
+    public List<GetPostResponse> getPosts(@RequestParam(required = false, defaultValue = "0") Integer pageNo,
+                                             @RequestParam(required = false, defaultValue = "5") Integer limit
+                                             ){
+        GetPostsRequest request = GetPostsRequest.builder()
+                .pageNo(pageNo)
+                .limit(limit)
+                .build();
+        return postService.getPosts(request);
     }
 
     @GetMapping("/{slug}")
-    public Post getPostBySlug(@PathVariable String slug){
-        return postService.getPostBySlug(slug);
+    public GetPostResponse getPostBySlug(@Valid @PathVariable String slug){
+        GetPostBySlugRequest request = GetPostBySlugRequest.builder().slug(slug).build();
+        return postService.getPostBySlug(request);
     }
 
     @PostMapping
-    public Post createPost(@RequestBody Post post) {
-        return postService.createPost(post);
+    public CreatePostResponse createPost(@Valid @RequestBody CreatePostRequest createPostRequest) {
+        return postService.createPost(createPostRequest);
     }
 
     @PutMapping("/{slug}")
-    public Post updatePostBySlug(@PathVariable String slug, @RequestBody Post post){
-        return postService.updatePostBySlug(slug, post);
+    public UpdatePostBySlugResponse updatePostBySlug(@PathVariable String slug,
+                                                     @Valid @RequestBody UpdatePostBySlugRequest request){
+        return postService.updatePostBySlug(slug, request);
     }
 
     @DeleteMapping("/{id}")
-    public boolean deletePostById(@PathVariable Integer id) {
+    public DeletePostByIdResponse deletePostById(@PathVariable Integer id) {
         return postService.deletePostById(id);
     }
 
-    @PostMapping("/{id}/publish")
-    public Post publishPostWithId(@PathVariable Integer id) {
-        return postService.publishPostWithId(id);
+    @PutMapping("/{id}/publish")
+    public PublishPostResponse publishPost(@PathVariable Integer id) {
+        return postService.publishPost(id);
     }
 }

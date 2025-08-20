@@ -1,61 +1,87 @@
 package com.rehund.blog.service;
 
 import com.rehund.blog.entity.Post;
+import com.rehund.blog.exception.ApiException;
+import com.rehund.blog.mapper.PostMapper;
 import com.rehund.blog.repository.PostRepository;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import com.rehund.blog.request.post.CreatePostRequest;
+import com.rehund.blog.request.post.GetPostBySlugRequest;
+import com.rehund.blog.request.post.GetPostsRequest;
+import com.rehund.blog.request.post.UpdatePostBySlugRequest;
+import com.rehund.blog.response.post.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
-@AllArgsConstructor
-@NoArgsConstructor
 public class PostService {
 
+    private final PostRepository postRepository;
+
     @Autowired
-    PostRepository postRepository;
-
-    public Iterable<Post> getPosts() {
-        return postRepository.findAll();
-    }
-    public Post getPostBySlug(String slug){
-        return postRepository.findFirstBySlugAndIsDeleted(slug, false).orElse(null);
+    public PostService(PostRepository postRepository){
+        this.postRepository = postRepository;
     }
 
-    public Post createPost(Post post){
+    public List<GetPostResponse> getPosts(GetPostsRequest request) {
+        PageRequest pageRequest = PageRequest.of(request.getPageNo(), request.getLimit());
+
+        List<Post> posts = postRepository.findByIsDeleted(false, pageRequest).getContent();
+        List<GetPostResponse> responses = new ArrayList<>();
+
+        posts.forEach(post -> responses.add(PostMapper.INSTANCE.mapToGetPostResponse(post)));
+        return responses;
+    }
+    public GetPostResponse getPostBySlug(GetPostBySlugRequest request){
+        Post post = postRepository.findFirstBySlugAndIsDeleted(request.getSlug(), false)
+                .orElseThrow(() -> new ApiException("Post tidak ditemukan", HttpStatus.NOT_FOUND));
+
+        return PostMapper.INSTANCE.mapToGetPostResponse(post);
+    }
+
+    public CreatePostResponse createPost(CreatePostRequest request){
+
+        Post post = PostMapper.INSTANCE.mapFromCreatePostRequest(request);
+        post.setCommentCount(0L);
         post.setCreatedAt(Instant.now().getEpochSecond());
-        return postRepository.save(post);
+
+        postRepository.save(post);
+
+        return PostMapper.INSTANCE.mapToCreatePostResponse(post);
     }
 
-    public Post updatePostBySlug(String slug, Post post){
-        Post foundPost =  postRepository.findFirstBySlugAndIsDeleted(slug, false).orElse(null);
-        if(foundPost == null) {
-            return null;
-        }
-        post.setId(foundPost.getId());
-        return postRepository.save(post);
+    public UpdatePostBySlugResponse updatePostBySlug(String slug, UpdatePostBySlugRequest request){
+        Post post =  postRepository.findFirstBySlugAndIsDeleted(slug, false).orElseThrow(() -> new ApiException("post not found", HttpStatus.NOT_FOUND));
+
+        post.setTitle(request.getTitle());
+        post.setBody(request.getBody());
+        post.setSlug(request.getSlug());
+        postRepository.save(post);
+
+        return PostMapper.INSTANCE.mapToUpdatePostBySlugResponse(post);
     }
 
-    public boolean deletePostById(Integer id){
-        Post post =  postRepository.findById(id).orElse(null);
-        if(post == null){
-            return false;
-        }
+    public DeletePostByIdResponse deletePostById(Integer id){
+        Post post =  postRepository.findById(id).orElseThrow(() -> new ApiException("post not found", HttpStatus.NOT_FOUND));
+
         post.setDeleted(true);
         postRepository.save(post);
-        return true;
+        return PostMapper.INSTANCE.mapToDeletePostByIdResponse(post);
     }
 
-    public Post publishPostWithId(Integer id){
-        Post post =  postRepository.findById(id).orElse(null);
-        if(post == null){
-            return null;
-        }
+    public PublishPostResponse publishPost(Integer id){
+        Post post =  postRepository.findByIdAndIsDeleted(id, false).orElseThrow(() -> new ApiException("post not found", HttpStatus.NOT_FOUND));
+
         post.setPublished(true);
         post.setPublishedAt(Instant.now().getEpochSecond());
-        return postRepository.save(post);
+        postRepository.save(post);
+
+        return PublishPostResponse.builder().publishedAt(post.getPublishedAt()).isPublished(post.isPublished()).build();
     }
 
 }
