@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/posts")
-public class PostController {
+@RequestMapping("/api/admin/posts")
+public class PostAdminController {
 
     private final PostService postService;
 
     @Autowired
-    public PostController(PostService postService) {
+    public PostAdminController(PostService postService) {
         this.postService = postService;
     }
 

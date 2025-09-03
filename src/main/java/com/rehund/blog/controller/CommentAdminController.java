@@ -1,6 +1,5 @@
 package com.rehund.blog.controller;
 
-import com.rehund.blog.entity.Comment;
 import com.rehund.blog.request.comment.CreateCommentRequest;
 import com.rehund.blog.request.comment.GetCommentByIdRequest;
 import com.rehund.blog.request.comment.GetCommentsRequest;
@@ -14,11 +13,11 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/comments")
-public class CommentController {
+@RequestMapping("/api/admin/comments")
+public class CommentAdminController {
     final private CommentService commentService;
 
-    public CommentController(CommentService commentService){
+    public CommentAdminController(CommentService commentService){
         this.commentService = commentService;
     }
 

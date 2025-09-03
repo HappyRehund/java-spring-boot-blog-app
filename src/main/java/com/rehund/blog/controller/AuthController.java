@@ -26,7 +26,7 @@ public class AuthController {
     @Autowired
     MyUserDetailsService myUserDetailsService;
 
-    @PostMapping("/api/login")
+    @PostMapping("/api/public/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest loginRequest){
 
         Authentication authentication = authenticationManager.authenticate(
