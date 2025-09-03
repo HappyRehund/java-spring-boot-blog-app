@@ -1,0 +1,46 @@
+package com.rehund.blog.controller;
+
+import com.rehund.blog.request.auth.LoginRequest;
+import com.rehund.blog.response.auth.LoginResponse;
+import com.rehund.blog.service.JWTService;
+import com.rehund.blog.service.MyUserDetailsService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class AuthController {
+
+    @Autowired
+    JWTService jwtService;
+
+    @Autowired
+    AuthenticationManager authenticationManager;
+
+    @Autowired
+    MyUserDetailsService myUserDetailsService;
+
+    @PostMapping("/api/login")
+    public LoginResponse login(@Valid @RequestBody LoginRequest loginRequest){
+
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+        );
+
+        if(authentication.isAuthenticated()){
+            String token
+                    = jwtService.generateToken
+                    (myUserDetailsService.loadUserByUsername(loginRequest.getUsername()));
+
+            return LoginResponse.builder().token(token).build();
+        }
+
+        throw new UsernameNotFoundException("invalid user");
+    }
+}
