@@ -2,7 +2,7 @@ package com.rehund.blog.controller;
 
 import com.rehund.blog.request.auth.LoginRequest;
 import com.rehund.blog.response.auth.LoginResponse;
-import com.rehund.blog.service.JWTService;
+import com.rehund.blog.service.JwtService;
 import com.rehund.blog.service.MyUserDetailsService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     @Autowired
-    JWTService jwtService;
+    JwtService jwtService;
 
     @Autowired
     AuthenticationManager authenticationManager;

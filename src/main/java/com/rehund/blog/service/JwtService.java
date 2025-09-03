@@ -1,6 +1,7 @@
 package com.rehund.blog.service;
 
 import com.rehund.blog.properties.SecretProperties;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class JWTService {
+public class JwtService {
 
     @Autowired
     SecretProperties secretProperties;
@@ -34,9 +35,27 @@ public class JWTService {
                 .compact();
     }
 
+    public String extractUsername(String jwt){
+        Claims claims = getClaims(jwt);
+        return claims.getSubject();
+    }
+
+    public boolean isExpired(String jwt){
+        Claims claims = getClaims(jwt);
+        return claims.getExpiration().before(Date.from(Instant.now()));
+    }
+
     private SecretKey generateKey() {
         byte[] decodedKey = Base64.getDecoder().decode(secretProperties.getJwtSecretKey());
         return Keys.hmacShaKeyFor(decodedKey);
+    }
+
+    private Claims getClaims(String jwt){
+        return Jwts.parser()
+                .verifyWith(generateKey())
+                .build()
+                .parseSignedClaims(jwt)
+                .getPayload();
     }
 }
 
