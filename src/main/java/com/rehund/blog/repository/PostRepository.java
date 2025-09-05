@@ -16,5 +16,4 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     Optional<Post> findFirstBySlugAndIsDeleted(String slug, boolean isDeleted);
     Optional<Post> findByIdAndIsDeleted(Integer id, boolean isDeleted);
     Page<Post> findByIsDeleted(boolean isDeleted, Pageable pageable);
-
 }
