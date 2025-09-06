@@ -12,7 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import java.util.List;
 
 @SpringBootTest
-public class PostRepositoryTests {
+public class PostRepositoryUnitTests {
 
     @Autowired
     PostRepository postRepository;

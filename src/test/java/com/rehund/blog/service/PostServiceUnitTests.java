@@ -22,12 +22,11 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class PostServiceTests {
+public class PostServiceUnitTests {
 
     @Autowired
     @InjectMocks
     PostService postService;
-//  Kita perlu mock post repository supaya si postService tidak langsung memanggil postRepository asli
 
     private AutoCloseable mocks;
 
@@ -41,6 +40,7 @@ public class PostServiceTests {
         mocks.close();
     }
 
+    //  Kita perlu mock post repository supaya si postService tidak langsung memanggil postRepository asli
     @Mock
     PostRepository postRepository;
 

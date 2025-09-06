@@ -1,7 +1,6 @@
 package com.rehund.blog.controller;
 
 import com.rehund.blog.request.comment.CreateCommentRequest;
-import com.rehund.blog.request.comment.GetCommentByIdRequest;
 import com.rehund.blog.request.comment.GetCommentsRequest;
 import com.rehund.blog.response.comment.CreateCommentResponse;
 import com.rehund.blog.response.comment.GetCommentResponse;

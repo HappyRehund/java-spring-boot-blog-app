@@ -1,0 +1,65 @@
+package com.rehund.blog.controller;
+
+
+import com.rehund.blog.entity.Post;
+import com.rehund.blog.repository.PostRepository;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+public class PostPublicControllerIntegrationTests {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    PostRepository postRepository;
+
+    @Test
+    void getPostBySlug_givenValid_ShouldReturnOK() throws Exception {
+
+        Post post = new Post();
+        // Jangan set ID jika auto-generated
+        post.setTitle("title1");
+        post.setSlug("slug1");
+        post.setDeleted(false);
+
+        postRepository.save(post);
+
+        mockMvc.perform(get("/api/public/posts/slug1"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("""
+                        {
+                            "title" : "title1",
+                            "slug" : "slug1"
+                        }
+                        """));
+    }
+
+    @Test
+    void getPostsBySlug_givenPostDoesntExist_shouldReturnNotFound() throws  Exception{
+        mockMvc.perform(get("/api/public/posts/slug-invalid"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().json("""
+                        {
+                            "errorMessages" : ["Post tidak ditemukan"]
+                        }
+                        """));
+    }
+
+    @Test
+    void createPost_givenInvalid_shouldReturnBadRequest() throws Exception {
+        mockMvc.perform(post("/api/public/posts"))
+                .andExpect(status().isMethodNotAllowed());
+    }
+}
