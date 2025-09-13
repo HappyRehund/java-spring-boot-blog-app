@@ -15,4 +15,14 @@ public class CreatePostResponse {
     private String slug;
     private Long publishedAt;
     private Long commentCount;
+
+    private Category category;
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Category {
+        private String name;
+    }
 }

@@ -24,14 +24,11 @@ import java.util.List;
 @Service
 public class CategoryService {
 
-    final private CategoryRepository categoryRepository;
-    final private PostRepository postRepository;
+    @Autowired
+    CategoryRepository categoryRepository;
 
     @Autowired
-    CategoryService(CategoryRepository categoryRepository, PostRepository postRepository){
-        this.categoryRepository = categoryRepository;
-        this.postRepository = postRepository;
-    }
+    PostRepository postRepository;
 
     public List<GetCategoryResponse> getCategories (GetCategoriesRequest request) {
         PageRequest pageRequest = PageRequest.of(request.getPageNo(), request.getLimit());
@@ -39,7 +36,15 @@ public class CategoryService {
         List<Category> categories = categoryRepository.findAll(pageRequest).getContent();
         List<GetCategoryResponse> responses = new ArrayList<>();
 
-        categories.forEach(category -> responses.add(CategoryMapper.INSTANCE.mapToGetCategoryResponse(category)));
+        categories.forEach(category -> responses.add(
+                GetCategoryResponse.builder()
+                        .id(category.getId())
+                        .name(category.getName())
+                        .slug(category.getSlug())
+                        .isDeleted(category.isDeleted())
+                        .build())
+        );
+
         return responses;
     }
 
@@ -51,15 +56,27 @@ public class CategoryService {
         List<Category> categories = categoryRepository.findByIsDeleted(false, pageRequest).getContent();
         List<GetCategoryResponse> responses = new ArrayList<>();
 
-        categories.forEach(category -> responses.add(CategoryMapper.INSTANCE.mapToGetCategoryResponse(category)));
+        categories.forEach(category -> responses.add(
+                GetCategoryResponse.builder()
+                        .id(category.getId())
+                        .name(category.getName())
+                        .slug(category.getSlug())
+                        .isDeleted(category.isDeleted())
+                        .build())
+        );
         return responses;
     }
 
     public GetCategoryResponse getCategoryById (Integer id){
 
-        Category category = categoryRepository.findByIdAndIsDeleted(id, false).orElseThrow(() -> new ApiException("category not found", HttpStatus.NOT_FOUND));
+        Category category = categoryRepository.findById(id).orElseThrow(() -> new ApiException("category not found", HttpStatus.NOT_FOUND));
 
-        return CategoryMapper.INSTANCE.mapToGetCategoryResponse(category);
+        return GetCategoryResponse.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .slug(category.getSlug())
+                .isDeleted(category.isDeleted())
+                .build();
     }
 
     public CreateCategoryResponse createCategory (CreateCategoryRequest request) {
@@ -73,8 +90,12 @@ public class CategoryService {
     }
 
     public UpdateCategoryResponse updateCategory(Integer id, UpdateCategoryRequest request) {
+        Category category = categoryRepository.findById(id).orElseThrow(() -> new ApiException("category not found", HttpStatus.NOT_FOUND));
 
-        Category category = CategoryMapper.INSTANCE.mapFromUpdateCategoryRequest(request);
+        category.setName(request.getName());
+        category.setSlug(request.getSlug());
+        categoryRepository.save(category);
+
         return CategoryMapper.INSTANCE.mapToUpdateCategoryResponse(category);
     }
 
@@ -83,13 +104,13 @@ public class CategoryService {
 
         Long numberOfPosts = postRepository.countByCategory(category);
 
-        if (numberOfPosts == 0) {
+        if (numberOfPosts != 0) {
             throw new ApiException("posts still exists cannot be deleted", HttpStatus.BAD_REQUEST);
         }
 
         category.setDeleted(true);
         categoryRepository.save(category);
 
-        return CategoryMapper.INSTANCE.mapToDeleteCategoryResponse(category);
+        return DeleteCategoryResponse.builder().id(id).isDeleted(category.isDeleted()).build();
     }
 }

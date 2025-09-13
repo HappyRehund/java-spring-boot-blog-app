@@ -1,8 +1,10 @@
 package com.rehund.blog.service;
 
+import com.rehund.blog.entity.Category;
 import com.rehund.blog.entity.Post;
 import com.rehund.blog.exception.ApiException;
 import com.rehund.blog.mapper.PostMapper;
+import com.rehund.blog.repository.CategoryRepository;
 import com.rehund.blog.repository.PostRepository;
 import com.rehund.blog.request.post.CreatePostRequest;
 import com.rehund.blog.request.post.GetPostBySlugRequest;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -22,10 +25,12 @@ import java.util.List;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final CategoryRepository categoryRepository;
 
     @Autowired
-    public PostService(PostRepository postRepository){
+    public PostService(PostRepository postRepository, CategoryRepository categoryRepository){
         this.postRepository = postRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     public List<GetPostResponse> getPosts(GetPostsRequest request) {
@@ -44,11 +49,18 @@ public class PostService {
         return PostMapper.INSTANCE.mapToGetPostResponse(post);
     }
 
+    @Transactional
     public CreatePostResponse createPost(CreatePostRequest request){
 
+        // sekarang mau assign dulu ke suatu category, berarti di body-nya bawa category
+        Category category = categoryRepository.findByNameAndIsDeleted(request.getCategory().getName(), false)
+                .orElseThrow(() -> new ApiException("category not found", HttpStatus.NOT_FOUND));
+
         Post post = PostMapper.INSTANCE.mapFromCreatePostRequest(request);
+
         post.setCommentCount(0L);
         post.setCreatedAt(Instant.now().getEpochSecond());
+        post.setCategory(category);
 
         postRepository.save(post);
 

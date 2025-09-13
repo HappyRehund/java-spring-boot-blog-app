@@ -26,6 +26,7 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+
     public CommentService(CommentRepository commentRepository, PostRepository postRepository){
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
@@ -51,12 +52,14 @@ public class CommentService {
 
     @Transactional
     public CreateCommentResponse createComment(CreateCommentRequest request){
-        Post post = postRepository.findFirstBySlugAndIsDeleted(request.getPost().getSlug(), false).orElseThrow(() -> new ApiException("post not found", HttpStatus.NOT_FOUND));
+        // di request body ada post --> slug
+        Post post = postRepository.findFirstBySlugAndIsDeleted(request.getPost().getSlug(), false)
+                .orElseThrow(() -> new ApiException("post not found", HttpStatus.NOT_FOUND));
 
         Comment comment = CommentMapper.INSTANCE.mapFromCreateCommentRequest(request);
 
         comment.setCreatedAt(Instant.now().getEpochSecond());
-        comment.getPost().setId(post.getId());
+        comment.setPost(post);
 
         commentRepository.save(comment);
 
