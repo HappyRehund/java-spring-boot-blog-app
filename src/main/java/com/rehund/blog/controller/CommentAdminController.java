@@ -7,6 +7,8 @@ import com.rehund.blog.response.comment.CreateCommentResponse;
 import com.rehund.blog.response.comment.GetCommentResponse;
 import com.rehund.blog.service.CommentService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +24,7 @@ public class CommentAdminController {
     }
 
     @GetMapping
-    public List<GetCommentResponse> getComments(@RequestParam(required = false) String postSlug,
+    public ResponseEntity<List<GetCommentResponse>> getComments(@RequestParam(required = false) String postSlug,
                                      @RequestParam(required = false, defaultValue = "0") Integer pageNo,
                                      @RequestParam(required = false, defaultValue = "10") Integer limit){
         GetCommentsRequest request = GetCommentsRequest.builder()
@@ -31,17 +33,17 @@ public class CommentAdminController {
                 .limit(limit)
                 .build();
 
-        return commentService.getComments(request);
+        return ResponseEntity.ok(commentService.getComments(request));
     }
 
     @GetMapping("/{id}")
-    public GetCommentResponse getComment(@PathVariable Integer id){
+    public ResponseEntity<GetCommentResponse> getComment(@PathVariable Integer id){
         GetCommentByIdRequest request = GetCommentByIdRequest.builder().id(id).build();
-        return commentService.getCommentById(request);
+        return ResponseEntity.ok(commentService.getCommentById(request));
     }
 
     @PostMapping
-    public CreateCommentResponse createComment(@Valid @RequestBody CreateCommentRequest comment){
-        return commentService.createComment(comment);
+    public ResponseEntity<CreateCommentResponse> createComment(@Valid @RequestBody CreateCommentRequest comment){
+        return ResponseEntity.status(HttpStatus.CREATED).body(commentService.createComment(comment));
     }
 }

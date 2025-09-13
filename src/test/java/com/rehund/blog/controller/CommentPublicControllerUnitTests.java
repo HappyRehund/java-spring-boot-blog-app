@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
@@ -62,13 +63,13 @@ public class CommentPublicControllerUnitTests {
 
         when(commentService.getComments(request)).thenReturn(actualCommentResponse);
 
-        List<GetCommentResponse> commentResponses = controller
+        ResponseEntity<List<GetCommentResponse>> commentResponses = controller
                 .getComments("slug1", 0, 10);
 
-        Assertions.assertNotNull(commentResponses);
-        Assertions.assertEquals(1, commentResponses.size());
-        Assertions.assertEquals(1, commentResponses.getFirst().getId());
-        Assertions.assertEquals("This is comment filled by ray", commentResponses.getFirst().getBody());
+        Assertions.assertNotNull(commentResponses.getBody());
+        Assertions.assertEquals(1, commentResponses.getBody().size());
+        Assertions.assertEquals(1, commentResponses.getBody().getFirst().getId());
+        Assertions.assertEquals("This is comment filled by ray", commentResponses.getBody().getFirst().getBody());
     }
 
     @Test

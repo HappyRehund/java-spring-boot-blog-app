@@ -1,6 +1,5 @@
 package com.rehund.blog.response.comment;
 
-import com.rehund.blog.entity.Post;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.rehund.blog.response.post;
+package com.rehund.blog.response.category;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,13 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetPostResponse {
+public class UpdateCategoryResponse {
     private Integer id;
-    private String title;
-    private String body;
+    private String name;
     private String slug;
-    private Long publishedAt;
-    private Long commentCount;
-
-
 }

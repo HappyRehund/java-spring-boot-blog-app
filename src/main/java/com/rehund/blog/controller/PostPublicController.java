@@ -8,6 +8,7 @@ import com.rehund.blog.response.post.*;
 import com.rehund.blog.service.PostService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,21 +25,21 @@ public class PostPublicController {
     }
 
     @GetMapping
-    public List<GetPostResponse> getPosts(@RequestParam(required = false, defaultValue = "0") Integer pageNo,
-                                             @RequestParam(required = false, defaultValue = "5") Integer limit
+    public ResponseEntity<List<GetPostResponse>> getPosts(@RequestParam(required = false, defaultValue = "0") Integer pageNo,
+                                                         @RequestParam(required = false, defaultValue = "5") Integer limit
                                              ){
         //only published post
         GetPostsRequest request = GetPostsRequest.builder()
                 .pageNo(pageNo)
                 .limit(limit)
                 .build();
-        return postService.getPosts(request);
+        return ResponseEntity.ok(postService.getPosts(request));
     }
 
     @GetMapping("/{slug}")
-    public GetPostResponse getPostBySlug(@Valid @PathVariable String slug){
+    public ResponseEntity<GetPostResponse> getPostBySlug(@Valid @PathVariable String slug){
         //only published post
         GetPostBySlugRequest request = GetPostBySlugRequest.builder().slug(slug).build();
-        return postService.getPostBySlug(request);
+        return ResponseEntity.ok(postService.getPostBySlug(request));
     }
 }

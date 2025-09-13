@@ -1,5 +1,6 @@
 package com.rehund.blog.repository;
 
+import com.rehund.blog.entity.Category;
 import com.rehund.blog.entity.Comment;
 import com.rehund.blog.entity.Post;
 import org.springframework.data.domain.Page;
@@ -16,4 +17,6 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     Optional<Post> findFirstBySlugAndIsDeleted(String slug, boolean isDeleted);
     Optional<Post> findByIdAndIsDeleted(Integer id, boolean isDeleted);
     Page<Post> findByIsDeleted(boolean isDeleted, Pageable pageable);
+
+    Long countByCategory(Category category);
 }

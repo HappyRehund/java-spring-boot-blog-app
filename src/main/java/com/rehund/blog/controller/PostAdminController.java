@@ -8,6 +8,8 @@ import com.rehund.blog.response.post.*;
 import com.rehund.blog.service.PostService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,40 +26,40 @@ public class PostAdminController {
     }
 
     @GetMapping
-    public List<GetPostResponse> getPosts(@RequestParam(required = false, defaultValue = "0") Integer pageNo,
-                                             @RequestParam(required = false, defaultValue = "5") Integer limit
+    public ResponseEntity<List<GetPostResponse>> getPosts(@RequestParam(required = false, defaultValue = "0") Integer pageNo,
+                                                         @RequestParam(required = false, defaultValue = "5") Integer limit
                                              ){
         GetPostsRequest request = GetPostsRequest.builder()
                 .pageNo(pageNo)
                 .limit(limit)
                 .build();
-        return postService.getPosts(request);
+        return ResponseEntity.ok(postService.getPosts(request));
     }
 
     @GetMapping("/{slug}")
-    public GetPostResponse getPostBySlug(@Valid @PathVariable String slug){
+    public ResponseEntity<GetPostResponse> getPostBySlug(@Valid @PathVariable String slug){
         GetPostBySlugRequest request = GetPostBySlugRequest.builder().slug(slug).build();
-        return postService.getPostBySlug(request);
+        return ResponseEntity.ok(postService.getPostBySlug(request));
     }
 
     @PostMapping
-    public CreatePostResponse createPost(@Valid @RequestBody CreatePostRequest createPostRequest) {
-        return postService.createPost(createPostRequest);
+    public ResponseEntity<CreatePostResponse> createPost(@Valid @RequestBody CreatePostRequest createPostRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(createPostRequest));
     }
 
     @PutMapping("/{slug}")
-    public UpdatePostBySlugResponse updatePostBySlug(@PathVariable String slug,
+    public ResponseEntity<UpdatePostBySlugResponse> updatePostBySlug(@PathVariable String slug,
                                                      @Valid @RequestBody UpdatePostBySlugRequest request){
-        return postService.updatePostBySlug(slug, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(postService.updatePostBySlug(slug, request));
     }
 
     @DeleteMapping("/{id}")
-    public DeletePostByIdResponse deletePostById(@PathVariable Integer id) {
-        return postService.deletePostById(id);
+    public ResponseEntity<DeletePostByIdResponse> deletePostById(@PathVariable Integer id) {
+        return ResponseEntity.ok(postService.deletePostById(id));
     }
 
     @PutMapping("/{id}/publish")
-    public PublishPostResponse publishPost(@PathVariable Integer id) {
-        return postService.publishPost(id);
+    public ResponseEntity<PublishPostResponse> publishPost(@PathVariable Integer id) {
+        return ResponseEntity.ok(postService.publishPost(id));
     }
 }

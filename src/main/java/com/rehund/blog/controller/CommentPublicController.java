@@ -23,7 +23,7 @@ public class CommentPublicController {
     }
 
     @GetMapping
-    public List<GetCommentResponse> getComments(@RequestParam String postSlug,
+    public ResponseEntity<List<GetCommentResponse>> getComments(@RequestParam String postSlug,
                                      @RequestParam(required = false, defaultValue = "0") Integer pageNo,
                                      @RequestParam(required = false, defaultValue = "10") Integer limit){
         GetCommentsRequest request = GetCommentsRequest.builder()
@@ -32,7 +32,7 @@ public class CommentPublicController {
                 .limit(limit)
                 .build();
 
-        return commentService.getComments(request);
+        return ResponseEntity.ok(commentService.getComments(request));
     }
 
     @PostMapping
